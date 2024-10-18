@@ -16,7 +16,7 @@ const TaskUpdateForm = ({ task, onClose, onTaskUpdate }) => {
     const [title, setTitle] = useState(task.title);
     const [description, setDescription] = useState(task.description);
     const [priority, setPriority] = useState(task.priority);
-    const [dueDate, setDueDate] = useState(task.dueDate.split('T')[0]);
+    const [dueDate, setDueDate] = useState(task.dueDate ? task.dueDate.split('T')[0] : ''); // Check for null
     const [status, setStatus] = useState(task.status);
     const [category, setCategory] = useState(task.category);
     const [completed, setCompleted] = useState(task.completed);

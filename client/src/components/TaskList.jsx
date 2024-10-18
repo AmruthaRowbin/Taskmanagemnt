@@ -15,7 +15,7 @@ import {
     Select,
     MenuItem,
     Chip,
-    Typography, // Import Typography for displaying messages
+    Typography,
 } from '@mui/material';
 import TaskUpdateForm from './TaskUpdateForm';
 import { getTasks, deleteTask } from '../api/taskApi';
@@ -38,16 +38,22 @@ const TaskList = () => {
                 return;
             }
             try {
-                const fetchedTasks = await getTasks(userId);
-                setTasks(fetchedTasks);
+                const response = await getTasks(userId);
+                console.log('Fetched tasks:', response); // Log the response
+
+                // Access the 'data' property to get the array of tasks
+                if (Array.isArray(response.data)) {
+                    setTasks(response.data);
+                } else {
+                    console.error('Fetched tasks is not an array:', response.data);
+                    setTasks([]); // Reset to an empty array if the response is not an array
+                }
             } catch (error) {
                 console.error('Error fetching tasks:', error);
             }
         };
 
-        if (userId) {
-            fetchTasks();
-        }
+        fetchTasks();
     }, [userId]);
 
     const handleEditClick = (task) => {
@@ -58,7 +64,7 @@ const TaskList = () => {
     const handleDeleteClick = async (id) => {
         try {
             await deleteTask(id);
-            setTasks(tasks.filter(task => task._id !== id));
+            setTasks((prevTasks) => prevTasks.filter(task => task._id !== id));
         } catch (error) {
             console.error('Error deleting task:', error);
         }
@@ -140,7 +146,7 @@ const TaskList = () => {
                 </Box>
             </Box>
 
-            {tasks.length === 0 ? ( // Check if there are no tasks
+            {tasks.length === 0 ? (
                 <Typography variant="h6" color="text.secondary" align="center">
                     No tasks available. Create your first task!
                 </Typography>
@@ -160,7 +166,7 @@ const TaskList = () => {
                                         {task.title}
                                     </span>
                                 }
-                                secondary={`Due: ${task.dueDate.split('T')[0]} - Status: ${task.status} - Reminder: ${task.reminder ? task.reminder.split('T')[0] : 'None'}`}
+                                secondary={`Due: ${task.dueDate ? task.dueDate.split('T')[0] : 'No due date'} - Status: ${task.status} - Reminder: ${task.reminder ? task.reminder.split('T')[0] : 'None'}`}
                             />
                             <Button variant="outlined" onClick={() => handleEditClick(task)}>Edit</Button>
                             <Button variant="outlined" color="error" onClick={() => handleDeleteClick(task._id)}>Delete</Button>
@@ -173,7 +179,7 @@ const TaskList = () => {
                 <DialogTitle>Edit Task</DialogTitle>
                 <DialogContent>
                     {selectedTask && <TaskUpdateForm task={selectedTask} onClose={handleClose} onTaskUpdate={(updatedTask) => {
-                        setTasks(tasks.map(t => (t._id === updatedTask._id ? updatedTask : t)));
+                        setTasks((prevTasks) => prevTasks.map(t => (t._id === updatedTask._id ? updatedTask : t)));
                     }} />}
                 </DialogContent>
                 <DialogActions>

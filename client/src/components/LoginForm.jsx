@@ -21,7 +21,7 @@ const LoginForm = () => {
 
         if (response) {
             if (response.token) { 
-                setUser({ id: response.user._id, token: response.token, name:response.user.name, email:response.user.email });// Assuming you return a token on successful login
+                setUser({ id: response.user._id, token: response.token, name:response.user.name, email:response.email });// Assuming you return a token on successful login
                 setNotificationMessage('Login successful');
                 setNotificationSeverity('success');
                 navigate(`/task/${response.user._id}`) 
