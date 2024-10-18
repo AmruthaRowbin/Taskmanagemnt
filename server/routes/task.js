@@ -7,20 +7,21 @@ const {
   updateTask,
   deleteTask,
 } = require('../controllers/taskController');
+const authMiddleware = require('../middleware/auth');
 
 // POST /api/tasks
-router.post('/task', createTask);
+router.post('/task', authMiddleware, createTask);
 
 // GET /api/tasks/:userId
-router.get('/task/:userId', getAllTasks);
+router.get('/task/:userId',authMiddleware, getAllTasks);
 
 // GET /api/tasks/:id
-router.get('/:id', getTaskById);
+router.get('/:id',authMiddleware, getTaskById);
 
 // PUT /api/tasks/:id
-router.put('/task/:id', updateTask);
+router.put('/task/:id', authMiddleware,updateTask);
 
 // DELETE /api/tasks/:id
-router.delete('/:id', deleteTask);
+router.delete('/:id', authMiddleware,deleteTask);
 
 module.exports = router;

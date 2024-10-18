@@ -3,7 +3,9 @@ const User= require('../models/user')
 
 // Create a new task
 exports.createTask = async (req, res) => {
-    const { userId, title, description, priority, dueDate, category } = req.body;
+    const { title, description, priority, dueDate, category } = req.body;
+    const userId = req.userId;
+    console.log(userId,"llllllllllllllll")
   
     try {
       // Check if the user exists
