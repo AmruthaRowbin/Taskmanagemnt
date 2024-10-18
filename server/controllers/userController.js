@@ -5,7 +5,8 @@ require('dotenv').config();
 
 // Register a new user
 exports.register =async (req, res) => {
-    const { name, number, email, password } = req.body;
+    const { name, email, password } = req.body;
+    console.log(name,email,"uuuuuuuuuuuuuuuuuu")
   
     try {
       // Check if the user already exists
@@ -20,7 +21,6 @@ exports.register =async (req, res) => {
       // Create a new user
       const user = new User({
         name,
-        number,
         email,
         password: hashedPassword,
       });
@@ -52,7 +52,7 @@ exports.login = async (req, res) => {
       }
   
       // Create a JWT token
-      const token = jwt.sign({ id: user._id }, "your_jwt_secret", { expiresIn: '1h' });
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET ,{ expiresIn: '1h' });
   
       // Return user data and token (excluding password)
       res.status(200).json({

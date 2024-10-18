@@ -3,8 +3,8 @@ const User= require('../models/user')
 
 // Create a new task
 exports.createTask = async (req, res) => {
-    const { title, description, priority, dueDate, category } = req.body;
-    const userId = req.userId;
+    const { userId,title, description, priority, dueDate, category } = req.body;
+    
     console.log(userId,"llllllllllllllll")
   
     try {

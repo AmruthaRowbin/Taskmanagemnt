@@ -2,20 +2,21 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
-
+require('dotenv').config();
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const userRouter = require('./routes/user')
-const taskrouter =require('./routes/task')
+const userRouter = require('./routes/user');
+const taskRouter = require('./routes/task');
+
 // MongoDB connection
-const mongoURI = 'mongodb://0.0.0.0:27017/taskmanagement';
+
 
 mongoose
-  .connect(mongoURI, {
+  .connect(process.env.mongoURI, { // Added a comma here
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -27,10 +28,8 @@ mongoose
   });
 
 // Routes
-
-app.use('/', userRouter)
-app.use('/',taskrouter)
-
+app.use('/', userRouter);
+app.use('/', taskRouter); // Corrected 'taskrouter' to 'taskRouter'
 
 // Start the server
 app.listen(5000, () => console.log('Server running on port 5000'));
