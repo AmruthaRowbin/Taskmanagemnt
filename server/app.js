@@ -29,7 +29,7 @@ mongoose
 
 // Routes
 app.use('/', userRouter);
-app.use('/', taskRouter); // Corrected 'taskrouter' to 'taskRouter'
+app.use('/', taskRouter); 
 
 // Start the server
 app.listen(5000, () => console.log('Server running on port 5000'));

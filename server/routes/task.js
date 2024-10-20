@@ -10,7 +10,7 @@ const {
 const authMiddleware = require('../middleware/auth');
 
 // POST /api/tasks
-router.post('/task', createTask);
+router.post('/task', authMiddleware, createTask);
 
 // GET /api/tasks/:userId
 router.get('/task/:userId',authMiddleware, getAllTasks);

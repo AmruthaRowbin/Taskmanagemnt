@@ -12,7 +12,7 @@ const Home = () => {
         alignItems: 'center', 
         justifyContent: 'center', 
         minHeight: '80vh', // Set a minimum height instead of full height
-        paddingTop: '20px' // Add some top padding to adjust spacing
+        paddingTop: '20px', // Add some top padding to adjust spacing
       }}
     >
       <Typography variant="h2" gutterBottom align="center">
@@ -28,6 +28,7 @@ const Home = () => {
           component={Link} 
           to="/register" 
           sx={{ marginRight: '10px' }} // Use sx for consistent styling
+          aria-label="Register" // Accessibility improvement
         >
           Register
         </Button>
@@ -36,6 +37,7 @@ const Home = () => {
           color="secondary" 
           component={Link} 
           to="/login"
+          aria-label="Login" // Accessibility improvement
         >
           Login
         </Button>

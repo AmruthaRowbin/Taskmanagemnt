@@ -3,28 +3,23 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Navbar from './components/Navbarr';
-import TaskCreationPage from './pages/TaskCreationPage';
-import TaskList from './components/TaskList';
-import { UserProvider } from './context/UserContext';
+import Navbar from './components/Navbar'; // Make sure the component name is correct
 
+import TaskList from './components/TaskList';
+import TaskCreation from './pages/TaskCreation';
 
 function App() {
-
     return (
-        <UserProvider>
         <Router>
-          <Navbar/>
+            <Navbar />
             <Routes>
                 <Route path="/" element={<Home />} />
-                {/* <Route path="/tasks" element={<TaskList />} /> */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/task" element={<TaskCreationPage/>}/>
-                <Route path="/task/:userId" element={<TaskList/>}/>
+                <Route path="/task" element={<TaskCreation  />} />
+                <Route path="/task/:userId" element={<TaskList />} />
             </Routes>
         </Router>
-        </UserProvider>
     );
 }
 

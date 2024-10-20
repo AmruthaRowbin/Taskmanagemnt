@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { TextField, Button, Container, Typography, Box, Snackbar } from '@mui/material';
-import { registerUser } from '../api/authApi';
+import { TextField, Button, Container, Typography, Box, Snackbar, Alert } from '@mui/material';
+import { registerUser } from '../api/userapi';
 import { useNavigate } from 'react-router-dom';
 
 const RegisterForm = () => {
@@ -10,48 +10,56 @@ const RegisterForm = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [loading, setLoading] = useState(false); // To disable the button during form submission
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const response = await registerUser({ name, email, password });
+        setLoading(true); // Disable the button during submission
 
-        console.log('Registration Response:', response); // Debugging output
+        try {
+            const response = await registerUser({ name, email, password });
 
-        // Check if registration was successful
-        if (response) {
-            if (response.message === 'User registered successfully') {
+            console.log('Registration Response:', response); // Debugging output
+
+            if (response && response.message === 'User registered successfully') {
                 setSuccessMessage(response.message);
                 setErrorMessage('');
-                setOpenSnackbar(true); // Open Snackbar
+                setOpenSnackbar(true); // Show Snackbar for success
+
+                // Clear input fields only on successful registration
+                setName('');
+                setEmail('');
+                setPassword('');
 
                 // Delay navigation to allow Snackbar to show
                 setTimeout(() => {
                     navigate('/login'); // Redirect to login page on success
                 }, 2000); // 2 seconds delay
             } else {
-                setErrorMessage(response.message); // Show the error message
+                setErrorMessage(response.message || 'Registration failed. Please try again.'); // Show error message
                 setSuccessMessage('');
-                setOpenSnackbar(true); // Open Snackbar
+                setOpenSnackbar(true); // Show Snackbar for error
             }
+        } catch (error) {
+            setErrorMessage('Something went wrong. Please try again later.');
+            setSuccessMessage('');
+            setOpenSnackbar(true); // Show Snackbar for errors
+        } finally {
+            setLoading(false); // Re-enable the button
         }
-
-        // Clear input fields
-        setName('');
-        setEmail('');
-        setPassword('');
     };
 
     const handleCloseSnackbar = (event, reason) => {
         if (reason === 'clickaway') {
             return;
         }
-        setOpenSnackbar(false);
+        setOpenSnackbar(false); // Close Snackbar
     };
 
     return (
         <Container maxWidth="sm">
-            <Box 
+            <Box
                 component="form"
                 onSubmit={handleSubmit}
                 sx={{
@@ -68,7 +76,7 @@ const RegisterForm = () => {
                 <Typography variant="h4" gutterBottom>
                     Register
                 </Typography>
-                
+
                 <TextField
                     label="Name"
                     variant="outlined"
@@ -77,7 +85,7 @@ const RegisterForm = () => {
                     required
                     fullWidth
                 />
-                
+
                 <TextField
                     label="Email"
                     type="email"
@@ -87,7 +95,7 @@ const RegisterForm = () => {
                     required
                     fullWidth
                 />
-                
+
                 <TextField
                     label="Password"
                     type="password"
@@ -97,31 +105,41 @@ const RegisterForm = () => {
                     required
                     fullWidth
                 />
-                
-                <Button 
+
+                <Button
                     type="submit"
                     variant="contained"
                     color="primary"
                     size="large"
                     fullWidth
+                    disabled={loading || !name || !email || !password} // Disable when loading or fields are empty
                     sx={{
                         mt: 2,
-                        backgroundColor: '#1976d2',
+                        backgroundColor: loading ? '#b0bec5' : '#1976d2', // Change color when loading
                         '&:hover': {
-                            backgroundColor: '#1565c0',
+                            backgroundColor: loading ? '#b0bec5' : '#1565c0',
                         },
                     }}
                 >
-                    Register
+                    {loading ? 'Registering...' : 'Register'}
                 </Button>
             </Box>
 
+            {/* Snackbar with different messages for success and error */}
             <Snackbar
                 open={openSnackbar}
+                autoHideDuration={6000}
                 onClose={handleCloseSnackbar}
-                message={successMessage || errorMessage} // Show success or error message
-                autoHideDuration={6000} // Hide after 6 seconds
-            />
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert
+                    onClose={handleCloseSnackbar}
+                    severity={successMessage ? 'success' : 'error'} // Success or error based on message
+                    sx={{ width: '100%' }}
+                >
+                    {successMessage || errorMessage}
+                </Alert>
+            </Snackbar>
         </Container>
     );
 };

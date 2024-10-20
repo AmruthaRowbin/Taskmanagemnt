@@ -1,5 +1,5 @@
 // src/components/TaskCreationForm.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     TextField,
     Button,
@@ -11,11 +11,15 @@ import {
     FormControl,
     InputLabel,
 } from '@mui/material';
-import { createTask } from '../api/taskApi';
-import { useUser } from '../context/UserContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { addTask } from '../redux/slices/taskSlice';  // Import the async thunk for task creation
 
 const TaskCreationForm = () => {
-    const { user } = useUser();
+    const dispatch = useDispatch();
+
+    // Access task creation state from Redux
+    const { loading, error, tasks } = useSelector((state) => state.tasks);
+
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [priority, setPriority] = useState('Low');
@@ -23,41 +27,34 @@ const TaskCreationForm = () => {
     const [status, setStatus] = useState('Pending');
     const [category, setCategory] = useState('Work');
     const [completed, setCompleted] = useState(false);
-    const [successMessage, setSuccessMessage] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
 
-    const handleSubmit = async (e) => {
-        e.preventDefault(); // Prevent default form submission
-        console.log('Form submitted'); // Log to verify the form submission
-
-        try {
-            const response = await createTask({
-                title,
-                description,
-                priority,
-                dueDate,
-                status,
-                category,
-                completed,
-                userId: user?.id // Use optional chaining to avoid errors if user is undefined
-            });
-
-            if (response) {
-                setSuccessMessage('Task created successfully!');
-                // Reset form fields
-                setTitle('');
-                setDescription('');
-                setPriority('Low');
-                setDueDate('');
-                setStatus('Pending');
-                setCategory('Work');
-                setCompleted(false);
-            } else {
-                setErrorMessage('Task creation failed: No response from server');
-            }
-        } catch (error) {
-            setErrorMessage('Failed to create task: ' + error.message);
+    // Effect to reset form after task creation
+    useEffect(() => {
+        if (!loading && !error) {
+            setTitle('');
+            setDescription('');
+            setPriority('Low');
+            setDueDate('');
+            setStatus('Pending');
+            setCategory('Work');
+            setCompleted(false);
         }
+    }, [tasks]);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const newTask = {
+            title,
+            description,
+            priority,
+            dueDate,
+            status,
+            category,
+            completed,
+        };
+
+        // Dispatch the async thunk to create a new task
+        dispatch(addTask(newTask));
     };
 
     return (
@@ -79,15 +76,15 @@ const TaskCreationForm = () => {
                 <Typography variant="h4" gutterBottom>
                     Create Task
                 </Typography>
-                
-                {successMessage && (
-                    <Typography color="green" sx={{ mb: 2 }}>
-                        {successMessage}
+
+                {loading && (
+                    <Typography color="blue" sx={{ mb: 2 }}>
+                        Creating task...
                     </Typography>
                 )}
-                {errorMessage && (
+                {error && (
                     <Typography color="red" sx={{ mb: 2 }}>
-                        {errorMessage}
+                        {error}
                     </Typography>
                 )}
 
@@ -99,7 +96,7 @@ const TaskCreationForm = () => {
                     required
                     fullWidth
                 />
-                
+
                 <TextField
                     label="Description"
                     variant="outlined"
@@ -110,7 +107,7 @@ const TaskCreationForm = () => {
                     multiline
                     rows={4}
                 />
-                
+
                 <FormControl fullWidth required>
                     <InputLabel>Priority</InputLabel>
                     <Select
@@ -123,7 +120,7 @@ const TaskCreationForm = () => {
                         <MenuItem value="High">High</MenuItem>
                     </Select>
                 </FormControl>
-                
+
                 <TextField
                     label="Due Date"
                     variant="outlined"
@@ -166,8 +163,8 @@ const TaskCreationForm = () => {
                 <FormControl fullWidth>
                     <InputLabel>Completed</InputLabel>
                     <Select
-                        value={completed ? "Yes" : "No"}
-                        onChange={(e) => setCompleted(e.target.value === "Yes")}
+                        value={completed ? 'Yes' : 'No'}
+                        onChange={(e) => setCompleted(e.target.value === 'Yes')}
                         label="Completed"
                     >
                         <MenuItem value="No">No</MenuItem>
@@ -175,7 +172,7 @@ const TaskCreationForm = () => {
                     </Select>
                 </FormControl>
 
-                <Button 
+                <Button
                     type="submit"
                     variant="contained"
                     color="primary"

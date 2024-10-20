@@ -1,38 +1,42 @@
 import React, { useState } from 'react';
-import { loginUser } from '../api/authApi';
 import { TextField, Button, Container, Typography, Box, Snackbar } from '@mui/material';
-import { useNavigate } from 'react-router-dom'; 
-import { useUser } from '../context/UserContext';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { login } from '../redux/slices/userSlice'; // Import the login action from Redux slice
 
 const LoginForm = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState('');
-    const [notificationSeverity, setNotificationSeverity] = useState(''); // 'success' or 'error'
-    const { setUser } = useUser();
+    const [notificationSeverity, setNotificationSeverity] = useState('');
+
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const response = await loginUser({ email, password });
-        console.log(response,"3333333333333333333333"); 
-        console.log(response.user._id,"yyyyyyyyyyyyyyyyyyyyyyyyy")// Handle login response
 
-        if (response) {
-            if (response.token) { 
-                setUser({ id: response.user._id, token: response.token, name:response.user.name, email:response.email });// Assuming you return a token on successful login
+        try {
+            const response = await dispatch(login({ email, password })); // Dispatch the login action with credentials
+
+            if (response.payload.token) {
                 setNotificationMessage('Login successful');
                 setNotificationSeverity('success');
-                navigate(`/task/${response.user._id}`) 
-            } else if (response.message) {
-                setNotificationMessage(response.message); // Assuming the message is in response
+                navigate(`/task/${response.payload.user._id}`);
+            } else if (response.payload.message) {
+                setNotificationMessage(response.payload.message);
                 setNotificationSeverity('error');
             }
-            setOpenSnackbar(true); // Open Snackbar
+            setOpenSnackbar(true);
+
+        } catch (error) {
+            console.error('Error during login:', error);
+            setNotificationMessage('Login failed. Please try again.');
+            setNotificationSeverity('error');
+            setOpenSnackbar(true);
         }
 
-        // Clear input fields
         setEmail('');
         setPassword('');
     };
@@ -46,7 +50,7 @@ const LoginForm = () => {
 
     return (
         <Container maxWidth="sm">
-            <Box 
+            <Box
                 component="form"
                 onSubmit={handleSubmit}
                 sx={{
@@ -63,7 +67,7 @@ const LoginForm = () => {
                 <Typography variant="h4" gutterBottom>
                     Login
                 </Typography>
-                
+
                 <TextField
                     label="Email"
                     type="email"
@@ -73,7 +77,7 @@ const LoginForm = () => {
                     required
                     fullWidth
                 />
-                
+
                 <TextField
                     label="Password"
                     type="password"
@@ -83,8 +87,8 @@ const LoginForm = () => {
                     required
                     fullWidth
                 />
-                
-                <Button 
+
+                <Button
                     type="submit"
                     variant="contained"
                     color="primary"
@@ -106,8 +110,8 @@ const LoginForm = () => {
                 open={openSnackbar}
                 onClose={handleCloseSnackbar}
                 message={notificationMessage}
-                autoHideDuration={6000} // Snackbar will hide after 6 seconds
-                severity={notificationSeverity} // Use for styling based on success/error
+                autoHideDuration={6000}
+                severity={notificationSeverity}
             />
         </Container>
     );

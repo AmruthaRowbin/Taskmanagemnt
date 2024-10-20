@@ -3,7 +3,8 @@ const User= require('../models/user')
 
 // Create a new task
 exports.createTask = async (req, res) => {
-    const { userId,title, description, priority, dueDate, category } = req.body;
+    const { title, description, priority, dueDate, category } = req.body;
+    const userId=req.userId
     
     console.log(userId,"llllllllllllllll")
   
@@ -65,10 +66,10 @@ exports.getTaskById = async (req, res) => {
 // Update a task
 exports.updateTask = async (req, res) => {
   const { id } = req.params;
-  const { title, description, priority, dueDate, completed } = req.body;
+  const { title, description, priority,status, dueDate, completed } = req.body;
 
   try {
-    const task = await Task.findByIdAndUpdate(id, { title, description, priority, dueDate, completed }, { new: true });
+    const task = await Task.findByIdAndUpdate(id, { title, description, priority, dueDate,status, completed }, { new: true });
     if (!task) {
       return res.status(404).json({ message: 'Task not found' });
     }

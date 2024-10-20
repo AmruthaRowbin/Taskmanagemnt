@@ -10,9 +10,12 @@ import {
     Snackbar,
     Alert,
 } from '@mui/material';
-import { updateTask } from '../api/taskApi';
+import { useDispatch } from 'react-redux';
+import { editTask } from '../redux/slices/taskSlice'; // Adjust the path to where your slice is located
 
 const TaskUpdateForm = ({ task, onClose, onTaskUpdate }) => {
+    const dispatch = useDispatch();
+
     const [title, setTitle] = useState(task.title);
     const [description, setDescription] = useState(task.description);
     const [priority, setPriority] = useState(task.priority);
@@ -20,7 +23,6 @@ const TaskUpdateForm = ({ task, onClose, onTaskUpdate }) => {
     const [status, setStatus] = useState(task.status);
     const [category, setCategory] = useState(task.category);
     const [completed, setCompleted] = useState(task.completed);
-
     const [openSnackbar, setOpenSnackbar] = useState(false); // Snackbar state
 
     const handleSubmit = async (e) => {
@@ -35,9 +37,11 @@ const TaskUpdateForm = ({ task, onClose, onTaskUpdate }) => {
                 category,
                 completed,
             };
-            await updateTask(task._id, updatedTask);
-            
-            onTaskUpdate({ ...task, ...updatedTask }); // Update task in the list immediately
+
+            onTaskUpdate(updatedTask); // Call the callback with the updated task
+            // Dispatch the editTask action with the task ID and updated task data
+            dispatch(editTask({ taskId: task._id, updatedTaskData: updatedTask }));
+
             setOpenSnackbar(true); // Show Snackbar on successful update
 
             setTimeout(() => {

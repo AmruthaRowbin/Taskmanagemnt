@@ -18,61 +18,54 @@ import {
     Typography,
 } from '@mui/material';
 import TaskUpdateForm from './TaskUpdateForm';
-import { getTasks, deleteTask } from '../api/taskApi';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchTasks, removeTask, editTask } from '../redux/slices/taskSlice'; // Adjust path as necessary
 import { useParams } from 'react-router-dom';
 
 const TaskList = () => {
     const { userId } = useParams();
-    const [tasks, setTasks] = useState([]);
+    const dispatch = useDispatch();
+    const { tasks, loading, error } = useSelector((state) => state.tasks); // Accessing tasks from Redux state
     const [open, setOpen] = useState(false);
-    const [selectedTask, setSelectedTask] = useState(null);
+    const [selectedTask, setSelectedTask] = useState(null); 
     
     const [priorityFilter, setPriorityFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [sortOrder, setSortOrder] = useState('asc');
 
     useEffect(() => {
-        const fetchTasks = async () => {
-            if (!userId) {
-                console.error('User ID not found!');
-                return;
+        if (userId) {
+            dispatch(fetchTasks(userId)); // Fetch tasks using Redux
+        }
+    }, [userId, dispatch]);
+
+    const handleEditTask = (updatedTask) => {
+        dispatch(editTask({ taskId: updatedTask._id, updatedTaskData: updatedTask })).then((result) => {
+            if (editTask.fulfilled.match(result)) {
+                dispatch(fetchTasks(userId)); // Re-fetch tasks after edit
+            } else {
+                console.error('Failed to update task');
             }
-            try {
-                const response = await getTasks(userId);
-                console.log('Fetched tasks:', response); // Log the response
-
-                // Access the 'data' property to get the array of tasks
-                if (Array.isArray(response.data)) {
-                    setTasks(response.data);
-                } else {
-                    console.error('Fetched tasks is not an array:', response.data);
-                    setTasks([]); // Reset to an empty array if the response is not an array
-                }
-            } catch (error) {
-                console.error('Error fetching tasks:', error);
-            }
-        };
-
-        fetchTasks();
-    }, [userId]);
-
-    const handleEditClick = (task) => {
-        setSelectedTask(task);
-        setOpen(true);
+        });
     };
 
     const handleDeleteClick = async (id) => {
-        try {
-            await deleteTask(id);
-            setTasks((prevTasks) => prevTasks.filter(task => task._id !== id));
-        } catch (error) {
-            console.error('Error deleting task:', error);
+        const result = await dispatch(removeTask(id)); // Dispatch removeTask action
+        if (removeTask.fulfilled.match(result)) {
+            console.log('Task deleted successfully');
+        } else {
+            console.error('Failed to delete the task');
         }
     };
 
     const handleClose = () => {
         setOpen(false);
         setSelectedTask(null);
+    };
+
+    const handleEditClick = (task) => {
+        setSelectedTask(task);
+        setOpen(true);
     };
 
     const filteredTasks = tasks.filter(task => {
@@ -146,13 +139,17 @@ const TaskList = () => {
                 </Box>
             </Box>
 
-            {tasks.length === 0 ? (
+            {loading ? (
+                <Typography variant="h6" color="text.secondary" align="center">
+                    Loading tasks...
+                </Typography>
+            ) : tasks.length === 0 ? (
                 <Typography variant="h6" color="text.secondary" align="center">
                     No tasks available. Create your first task!
                 </Typography>
             ) : (
                 <List>
-                    {sortedTasks.map((task) => (
+                    {sortedTasks.map((task) => task && task._id &&(
                         <ListItem key={task._id} sx={{ display: 'flex', alignItems: 'center' }}>
                             <ListItemText
                                 primary={
@@ -178,9 +175,7 @@ const TaskList = () => {
             <Dialog open={open} onClose={handleClose}>
                 <DialogTitle>Edit Task</DialogTitle>
                 <DialogContent>
-                    {selectedTask && <TaskUpdateForm task={selectedTask} onClose={handleClose} onTaskUpdate={(updatedTask) => {
-                        setTasks((prevTasks) => prevTasks.map(t => (t._id === updatedTask._id ? updatedTask : t)));
-                    }} />}
+                    {selectedTask && <TaskUpdateForm task={selectedTask} onClose={handleClose} onTaskUpdate={handleEditTask} />}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>Close</Button>

@@ -3,7 +3,7 @@ import React from 'react';
 import TaskCreationForm from '../components/TaskCreationForm';
 
 
-const TaskCreationPage = () => {
+const TaskCreation = () => {
     return (
         <div>
             
@@ -12,4 +12,4 @@ const TaskCreationPage = () => {
     );
 };
 
-export default TaskCreationPage;
+export default TaskCreation;

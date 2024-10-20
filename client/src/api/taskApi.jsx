@@ -1,4 +1,4 @@
-import axiosInstance from './axiosInstance'; // Import the axiosInstance with interceptor
+import axiosInstance from '../utils/axiosInstance'; // Import the axiosInstance with interceptor
 
 // Create a new task
 export const createTask = async (taskData) => {
