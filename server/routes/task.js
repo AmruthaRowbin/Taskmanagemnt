@@ -22,6 +22,6 @@ router.get('/:id',authMiddleware, getTaskById);
 router.put('/task/:id', authMiddleware,updateTask);
 
 // DELETE /api/tasks/:id
-router.delete('/:id', authMiddleware,deleteTask);
+router.delete('/task/:id', authMiddleware,deleteTask);
 
 module.exports = router;

@@ -39,14 +39,13 @@ export const removeTask = createAsyncThunk(
     'tasks/removeTask',
     async (taskId, { rejectWithValue }) => {
         try {
-            const response = await deleteTask(taskId);
-            return response.data;
+            const response = await deleteTask(taskId);  // Assuming deleteTask returns a success response
+            return { _id: taskId };  // Return the taskId to remove it from the state
         } catch (error) {
-            return rejectWithValue(error.message);
+            return rejectWithValue(error.response ? error.response.data.message : error.message);
         }
     }
 );
-
 // Async thunk for updating a task
 export const editTask = createAsyncThunk(
     'tasks/editTask',
@@ -97,7 +96,15 @@ const taskSlice = createSlice({
             })
             .addCase(removeTask.fulfilled, (state, action) => {
                 state.loading = false;
-                state.tasks = state.tasks.filter(task => task.id !== action.payload.id);
+            
+                // Ensure the action payload contains the necessary ID
+                if (!action.payload || !action.payload._id) {
+                    console.error("Task ID is missing in the response:", action.payload);
+                    return;
+                }
+            
+                // Remove the task from the state by filtering out the deleted task's ID
+                state.tasks = state.tasks.filter(task => task._id !== action.payload._id);
             })
             .addCase(removeTask.rejected, (state, action) => {
                 state.loading = false;
