@@ -14,7 +14,7 @@ This is a Task Management Application built using React and Material UI. It allo
 
 ## Tech Stack
 
-- **Frontend:** React, Context Api, Material UI
+- **Frontend:** React, Redux, Material UI
 - **Backend:** Node.js, Express, MongoDB (not included in this repo)
 - **API Client:** Axios
 
